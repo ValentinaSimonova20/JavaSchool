@@ -1,21 +1,21 @@
 package sbp.school.kafka.util;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class Transaction {
-    private String type;
+    private TransactionType type;
     private long sum;
     private String account;
-    private Date date;
+    private LocalDateTime date;
 
-    public Transaction(String type, long sum, String account, Date date) {
+    public Transaction(TransactionType type, long sum, String account, LocalDateTime date) {
         this.type = type;
         this.sum = sum;
         this.account = account;
         this.date = date;
     }
 
-    public String getType() {
+    public TransactionType getType() {
         return type;
     }
 
@@ -27,7 +27,7 @@ public class Transaction {
         return account;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 }

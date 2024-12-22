@@ -20,7 +20,7 @@ public class ConfigKafka {
         Properties properties = new Properties();
         properties.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                String.join(",", config.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG))
+                config.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG)
         );
         properties.put(
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
