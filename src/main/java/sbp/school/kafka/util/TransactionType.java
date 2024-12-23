@@ -7,7 +7,7 @@ public enum TransactionType {
         this.partitionNum = partitionNum;
     }
 
-    private int partitionNum;
+    private final int partitionNum;
 
     public int getPartitionNum() {
         return partitionNum;

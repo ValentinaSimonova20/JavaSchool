@@ -34,6 +34,10 @@ public class ConfigKafka {
                 ProducerConfig.PARTITIONER_CLASS_CONFIG,
                 config.getString(ProducerConfig.PARTITIONER_CLASS_CONFIG)
         );
+        properties.put(
+                "topic",
+                config.getString("topic")
+        );
         return properties;
     }
 }

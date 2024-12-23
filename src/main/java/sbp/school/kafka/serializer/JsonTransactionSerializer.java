@@ -33,7 +33,7 @@ public class JsonTransactionSerializer implements Serializer<Transaction> {
                 throw new RuntimeException(e);
             }
         }
-        return null;
+        return new byte[0];
     }
 
     private void validateBySchema(JsonNode data) {
