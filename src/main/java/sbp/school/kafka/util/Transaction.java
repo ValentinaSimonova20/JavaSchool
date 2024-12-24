@@ -8,6 +8,9 @@ public class Transaction {
     private String account;
     private LocalDateTime date;
 
+    public Transaction() {
+    }
+
     public Transaction(TransactionType type, long sum, String account, LocalDateTime date) {
         this.type = type;
         this.sum = sum;
