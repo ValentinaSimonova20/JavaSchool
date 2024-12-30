@@ -4,6 +4,7 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -47,6 +48,13 @@ public class ProducerServiceTest {
         assertEquals(transaction.getType().getPartitionNum(), producerService.send(transaction).partition());
         assertEquals(1, producer.history().size());
         producer.clear();
+    }
+
+    @Test
+    void sendMessage() {
+        new ProducerService().send(
+                new Transaction(TransactionType.PRODUCTS, 1234, "счет1", LocalDateTime.now())
+        );
     }
 
     private List<Transaction> testSource() {
