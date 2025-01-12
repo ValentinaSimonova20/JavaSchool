@@ -10,10 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import sbp.school.kafka.ProducerService;
 import sbp.school.kafka.serializer.JsonTransactionSerializer;
-import sbp.school.kafka.util.ConfigKafka;
-import sbp.school.kafka.util.Transaction;
-import sbp.school.kafka.util.TransactionPartitioner;
-import sbp.school.kafka.util.TransactionType;
+import sbp.school.kafka.util.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -52,9 +49,11 @@ public class ProducerServiceTest {
 
     @Test
     void sendMessage() {
+        int sizeBefore = TransactionDao.getAllTransactions().size();
         new ProducerService().send(
                 new Transaction(TransactionType.PRODUCTS, 1234, "счет1", LocalDateTime.now())
         );
+        assertEquals(sizeBefore + 1, TransactionDao.getAllTransactions().size());
     }
 
     private List<Transaction> testSource() {
