@@ -13,40 +13,44 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SchedulerThread extends Thread{
 
-    private ConcurrentLinkedQueue<Long> allHashSums;
+    private final ConcurrentLinkedQueue<Long> allHashSums;
 
-    private ProducerService producerService;
+    private final ProducerService producerService;
+
+    private final ObjectMapper objectMapper;
 
     public SchedulerThread(ConcurrentLinkedQueue<Long> allHashSums) {
         this.allHashSums = allHashSums;
         this.producerService = new ProducerService();
+        this.objectMapper = new ObjectMapper();
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm"));
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @Override
     public void run() {
         List<Transaction> transactions = TransactionDao.getTransactionsInPeriod();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm"));
-        objectMapper.registerModule(new JavaTimeModule());
-        if(
-                allHashSums
-                        .poll()
-                        .intValue() != Long.valueOf(transactions.stream().mapToLong(transaction -> transaction.getId()).sum()).hashCode()) {
-            transactions
-                    .stream()
-                    .map(
-                            transaction -> {
-                                try {
-                                    return objectMapper.readValue(
-                                            transaction.getTransactionJson(),
-                                            sbp.school.kafka.util.Transaction.class
-                                    );
-                                } catch (JsonProcessingException e) {
-                                    throw new RuntimeException(e);
+        // пытаемся получить хэшсумму, которая была добавлену в эту коллекцию из топика
+        Long hashSum = allHashSums.poll();
+        if(hashSum != null) {
+            // если хешсуммы не совпали, то переотправляем все транзакции которые выяитали из базы
+            if(hashSum.intValue() != Long.valueOf(transactions.stream().mapToLong(Transaction::getId).sum()).hashCode()) {
+                transactions
+                        .stream()
+                        .map(
+                                transaction -> {
+                                    try {
+                                        return objectMapper.readValue(
+                                                transaction.getTransactionJson(),
+                                                sbp.school.kafka.util.Transaction.class
+                                        );
+                                    } catch (JsonProcessingException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }
-                            }
-                    ).forEach(transaction -> producerService.send(transaction));
+                        ).forEach(producerService::send);
+            }
         }
     }
 

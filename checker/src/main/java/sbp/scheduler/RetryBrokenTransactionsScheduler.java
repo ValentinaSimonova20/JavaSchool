@@ -5,6 +5,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Шедулер, который периодично вычитывает из базы все транзакции за определенное время,
+ * высчитывает их хэшсуммы и сравнивает с теми,
+ * которые получили в топике обратного потока (они хранятся в поле allHashSums)
+ */
 public class RetryBrokenTransactionsScheduler {
 
     private ConcurrentLinkedQueue<Long> allHashSums;
@@ -15,6 +20,6 @@ public class RetryBrokenTransactionsScheduler {
 
     public void schedule() {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        service.schedule(new SchedulerThread(allHashSums), 10, TimeUnit.SECONDS);
+        service.scheduleAtFixedRate(new SchedulerThread(allHashSums), 10, 10, TimeUnit.SECONDS);
     }
 }

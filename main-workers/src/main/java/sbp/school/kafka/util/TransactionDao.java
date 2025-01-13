@@ -34,7 +34,9 @@ public class TransactionDao {
             Class.forName("org.h2.Driver");
             try (
                     Connection conn = DriverManager.getConnection("jdbc:h2:~/transactions");
-                    PreparedStatement stat = conn.prepareStatement("INSERT INTO transactionKafka(transactionJson, transactionDate) VALUES (?,?)")
+                    PreparedStatement stat = conn.prepareStatement(
+                            "INSERT INTO transactionKafka(transactionJson, transactionDate) VALUES (?,?)"
+                    )
             ) {
                 stat.setString(1, objectMapper.writeValueAsString(transaction));
                 stat.setTimestamp(2, new Timestamp(System.currentTimeMillis()));

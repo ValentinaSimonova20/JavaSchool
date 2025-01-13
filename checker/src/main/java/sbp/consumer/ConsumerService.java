@@ -12,6 +12,10 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
+/**
+ * Консьюмер вычитывающий события с хешсуммами из топика "check-topic"
+ * все вычитанные хешсуммы кладет во временное хранилище allHashSums
+ */
 public class ConsumerService {
 
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();// 1

@@ -15,7 +15,12 @@ public class TransactionDao {
                     Connection conn = DriverManager.getConnection("jdbc:h2:~/transactions");
                     Statement stat = conn.createStatement()
             ) {
-                try(ResultSet rs = stat.executeQuery("select * from transactionKafka WHERE Timestamp >= now() - interval 10 minute")) {
+                try(
+                        ResultSet rs = stat.executeQuery(
+                                "select * from transactionKafka WHERE transactionDate " +
+                                        ">= current_timestamp - (interval '10' minute)"
+                        )
+                ) {
                     while (rs.next()) {
                         result.add(
                                 new Transaction(

@@ -1,12 +1,8 @@
 package sbp.deserializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
-import sbp.school.kafka.deserializer.JsonTransactionDeserializer;
-import sbp.school.kafka.util.Transaction;
-import sbp.school.kafka.validation.ValidationService;
 import sbp.util.HashSum;
 
 import java.io.IOException;
