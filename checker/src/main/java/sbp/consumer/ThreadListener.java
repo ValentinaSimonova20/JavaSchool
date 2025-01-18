@@ -1,15 +1,14 @@
 package sbp.consumer;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ThreadListener extends Thread{
 
-    private Properties properties;
-    private ConsumerService consumerService;
+    private final Properties properties;
+    private final ConsumerService consumerService;
 
-    public ThreadListener(Properties properties, ConcurrentLinkedQueue<Long> allHashSums) {
+    public ThreadListener(Properties properties) {
         this.properties = properties;
-        this.consumerService = new ConsumerService(allHashSums);
+        this.consumerService = new ConsumerService();
     }
 
     private void listen() {

@@ -1,17 +1,24 @@
 package sbp.util;
 
+import java.sql.Timestamp;
+
 public class HashSum {
-    private long hashSum;
+    private Timestamp timestamp;
+    private int hashSum;
 
     public HashSum() {
     }
 
 
-    public HashSum(long hashSum) {
+    public HashSum(int hashSum) {
         this.hashSum = hashSum;
     }
 
-    public long getHashSum() {
+    public int getHashSum() {
         return hashSum;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 }

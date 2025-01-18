@@ -43,6 +43,11 @@ public class ConfigKafka {
                 config.getString(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG)
         );
 
+        properties.put(
+                "time-stamp-hashsum-check-minutes",
+                config.getString("time-stamp-hashsum-check-minutes")
+        );
+
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         return properties;
     }

@@ -40,8 +40,8 @@ public class ConsumerService {
                     if (counter % 1000 == 0) {
                         logger.info("records commited");
                         kafkaConsumer.commitSync(currentOffsets, null);
-                        counter++;
                     }
+                    counter++;
                 }
             }
 
