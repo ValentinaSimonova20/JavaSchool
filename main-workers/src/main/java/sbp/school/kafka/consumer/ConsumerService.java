@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import sbp.school.kafka.util.Transaction;
+import sbp.school.kafka.util.TransactionDao;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ public class ConsumerService {
     private static final Logger logger = Logger.getLogger(ConsumerService.class.getName());
 
     public ConsumerService() {
+        TransactionDao.createTable("transactionsConsumer");
     }
 
     public void read(Properties properties) {
@@ -37,6 +39,7 @@ public class ConsumerService {
                     logger.info("groupId: " + kafkaConsumer.groupMetadata().groupId());
                     currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
                             new OffsetAndMetadata(record.offset() + 1, "no metadata"));
+                    TransactionDao.saveTransaction(record.value(), "transactionsConsumer");
                     if (counter % 1000 == 0) {
                         logger.info("records commited");
                         kafkaConsumer.commitSync(currentOffsets, null);

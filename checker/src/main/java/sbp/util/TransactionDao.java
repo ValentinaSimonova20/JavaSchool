@@ -39,4 +39,32 @@ public class TransactionDao {
         }
         return result;
     }
+
+    public static int getTransactionsHashSumInPeriod(Timestamp timestamp, int timestampForCheckMinutes) {
+        int result = 0;
+        try {
+            Class.forName("org.h2.Driver");
+            try (
+                    Connection conn = DriverManager.getConnection("jdbc:h2:~/transactionsConsumer");
+                    PreparedStatement prepStat = conn.prepareStatement(
+                            "select * from transactionKafka WHERE transactionDate " +
+                                    ">= cast (? as timestamp) - cast (? as interval minute)"
+                    )
+            ) {
+                prepStat.setTimestamp(1, timestamp);
+                prepStat.setInt(2, timestampForCheckMinutes);
+                prepStat.execute();
+                try(ResultSet rs = prepStat.getResultSet()) {
+                    while (rs.next()) {
+                        result += Long.valueOf(rs.getLong("id")).hashCode();
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }catch (ClassNotFoundException exception) {
+            throw new RuntimeException(exception);
+        }
+        return result;
+    }
 }

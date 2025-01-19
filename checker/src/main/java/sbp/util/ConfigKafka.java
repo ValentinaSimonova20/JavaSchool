@@ -9,6 +9,42 @@ import java.util.Properties;
 
 public class ConfigKafka {
 
+    public static Properties getProducerConfig() {
+        PropertiesConfiguration config = new PropertiesConfiguration();
+        try {
+            config.load("application.properties");
+        } catch (ConfigurationException exception) {
+            System.out.println("Не удалось загрузить конфигурационный файл: " + exception.getMessage());
+            throw new RuntimeException(exception);
+        }
+
+        Properties properties = new Properties();
+
+        properties.put(
+                "check-topic",
+                config.getString("check-topic")
+        );
+        properties.put(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                config.getString("bootstrap.servers.check-topic")
+        );
+
+        properties.put(
+                "time-stamp-hashsum-check-minutes",
+                config.getString("time-stamp-hashsum-check-minutes")
+        );
+
+        properties.put(
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                config.getString(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG)
+        );
+        properties.put(
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                config.getString(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG)
+        );
+        return properties;
+    }
+
     public static Properties getConsumerConfig(String groupId) {
 
         PropertiesConfiguration config = new PropertiesConfiguration();
