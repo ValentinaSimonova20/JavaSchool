@@ -4,8 +4,11 @@ package sbp.util;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class TransactionDao {
+
+    private static final Logger logger = Logger.getLogger(TransactionDao.class.getName());
 
     public static List<Transaction> getTransactionsInPeriod(Timestamp timestamp, int timestampForCheckMinutes) {
         List<Transaction> result = new ArrayList<>();
@@ -32,9 +35,11 @@ public class TransactionDao {
                     }
                 }
             } catch (Exception e) {
+                logger.severe("Произошла ошибка при работе с базой данных: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }catch (ClassNotFoundException exception) {
+            logger.severe("Не нашли класс org.h2.Driver. сообщение: " + exception.getMessage());
             throw new RuntimeException(exception);
         }
         return result;
@@ -60,9 +65,11 @@ public class TransactionDao {
                     }
                 }
             } catch (Exception e) {
+                logger.severe("Произошла ошибка при работе с базой данных: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }catch (ClassNotFoundException exception) {
+            logger.severe("Не нашли класс org.h2.Driver. сообщение: " + exception.getMessage());
             throw new RuntimeException(exception);
         }
         return result;

@@ -30,6 +30,11 @@ public class ConfigKafka {
         );
 
         properties.put(
+                "lag.minutes.hashsums.sendings",
+                config.getString("lag.minutes.hashsums.sendings")
+        );
+
+        properties.put(
                 "time-stamp-hashsum-check-minutes",
                 config.getString("time-stamp-hashsum-check-minutes")
         );

@@ -25,7 +25,11 @@ public class CalculateHashSumRunnableTask implements Runnable{
 
     @Override
     public void run() {
-        Timestamp now = Timestamp.from(Instant.now());
+        Timestamp now = Timestamp.from(
+                Instant.now().minusSeconds(
+                        Long.parseLong(properties.getProperty("lag.minutes.hashsums.sendings"))* 60
+                )
+        );
         producerService.send(
                 new HashSum(
                         TransactionDao.getTransactionsHashSumInPeriod(
