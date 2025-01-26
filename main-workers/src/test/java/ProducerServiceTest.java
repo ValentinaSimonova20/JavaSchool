@@ -49,11 +49,11 @@ public class ProducerServiceTest {
 
     @Test
     void sendMessage() {
-        int sizeBefore = TransactionDao.getAllTransactions().size();
+        int sizeBefore = TransactionDao.getAllTransactions("transactions").size();
         new ProducerService().send(
                 new Transaction(TransactionType.PRODUCTS, 1234, "счет1", LocalDateTime.now())
         );
-        assertEquals(sizeBefore + 1, TransactionDao.getAllTransactions().size());
+        assertEquals(sizeBefore + 1, TransactionDao.getAllTransactions("transactions").size());
     }
 
     private List<Transaction> testSource() {

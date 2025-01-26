@@ -10,8 +10,9 @@ public class HashSum {
     }
 
 
-    public HashSum(int hashSum) {
+    public HashSum(int hashSum, Timestamp timestamp) {
         this.hashSum = hashSum;
+        this.timestamp = timestamp;
     }
 
     public int getHashSum() {

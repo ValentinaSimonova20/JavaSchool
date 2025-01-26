@@ -10,11 +10,11 @@ import java.util.List;
 
 public class TransactionDao {
 
-    public static void createTable() {
+    public static void createTable(String bdName) {
         try {
             Class.forName("org.h2.Driver");
             try (
-                    Connection conn = DriverManager.getConnection("jdbc:h2:~/transactions");
+                    Connection conn = DriverManager.getConnection("jdbc:h2:~/" + bdName);
                     Statement stat = conn.createStatement()
             ) {
                 stat.execute("create table IF NOT EXISTS transactionKafka(id integer not null auto_increment, transactionJson varchar(255), transactionDate TIMESTAMP)");
@@ -26,14 +26,14 @@ public class TransactionDao {
         }
     }
 
-    public static void saveTransaction(Transaction transaction) {
+    public static void saveTransaction(Transaction transaction, String bdName) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm"));
         objectMapper.registerModule(new JavaTimeModule());
         try {
             Class.forName("org.h2.Driver");
             try (
-                    Connection conn = DriverManager.getConnection("jdbc:h2:~/transactions");
+                    Connection conn = DriverManager.getConnection("jdbc:h2:~/" + bdName);
                     PreparedStatement stat = conn.prepareStatement(
                             "INSERT INTO transactionKafka(transactionJson, transactionDate) VALUES (?,?)"
                     )
@@ -49,7 +49,7 @@ public class TransactionDao {
         }
     }
 
-    public static List<String> getAllTransactions() {
+    public static List<String> getAllTransactions(String bdName) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm"));
         objectMapper.registerModule(new JavaTimeModule());
@@ -57,7 +57,7 @@ public class TransactionDao {
         try {
             Class.forName("org.h2.Driver");
             try (
-                    Connection conn = DriverManager.getConnection("jdbc:h2:~/transactions");
+                    Connection conn = DriverManager.getConnection("jdbc:h2:~/" + bdName);
                     Statement stat = conn.createStatement()
             ) {
                 try(ResultSet rs = stat.executeQuery("select * from transactionKafka")) {
