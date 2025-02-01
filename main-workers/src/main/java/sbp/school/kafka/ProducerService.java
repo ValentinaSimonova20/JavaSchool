@@ -8,10 +8,7 @@ import sbp.school.kafka.util.TransactionDao;
 import sbp.school.kafka.util.ConfigKafka;
 import sbp.school.kafka.util.Transaction;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
