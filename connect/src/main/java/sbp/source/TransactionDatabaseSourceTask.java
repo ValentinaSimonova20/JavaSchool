@@ -1,5 +1,7 @@
 package sbp.source;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -25,7 +27,6 @@ public class TransactionDatabaseSourceTask extends SourceTask {
 
     private String databaseName;
     private String topic;
-    private int batchSize;
     private Long dbOffset;
 
     @Override
@@ -33,7 +34,6 @@ public class TransactionDatabaseSourceTask extends SourceTask {
         AbstractConfig config = new AbstractConfig(TransactionDatabaseSourceConnector.CONFIG_DEF, props);
         databaseName = config.getString(TransactionDatabaseSourceConnector.DB_CONFIG);
         topic = config.getString(TransactionDatabaseSourceConnector.TOPIC_CONFIG);
-        batchSize = config.getInt(TransactionDatabaseSourceConnector.TASK_BATCH_SIZE_CONFIG);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class TransactionDatabaseSourceTask extends SourceTask {
         try {
             Class.forName("org.h2.Driver");
             try (
-                    Connection conn = DriverManager.getConnection("jdbc:h2:~/transactions");
+                    Connection conn = DriverManager.getConnection(getDbName());
                     PreparedStatement stat = conn.prepareStatement("select * from transactionKafka offset ?")
             ) {
                 stat.setLong(1, skip);
@@ -103,5 +103,18 @@ public class TransactionDatabaseSourceTask extends SourceTask {
             throw new RuntimeException(exception);
         }
         return result;
+    }
+
+    private String getDbName() {
+
+        PropertiesConfiguration config = new PropertiesConfiguration();
+        try {
+            config.load("application.properties");
+        } catch (ConfigurationException exception) {
+            System.out.println("Не удалось загрузить конфигурационный файл: " + exception.getMessage());
+            throw new RuntimeException(exception);
+        }
+
+        return config.getString("dbname");
     }
 }

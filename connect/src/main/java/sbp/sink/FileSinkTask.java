@@ -30,11 +30,6 @@ public class FileSinkTask extends SinkTask {
     public FileSinkTask() {
     }
 
-    // for testing
-    public FileSinkTask(PrintStream outputStream) {
-        filename = null;
-        this.outputStream = outputStream;
-    }
 
     @Override
     public String version() {
