@@ -8,10 +8,7 @@ import sbp.school.kafka.util.TransactionDao;
 import sbp.school.kafka.util.ConfigKafka;
 import sbp.school.kafka.util.Transaction;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
@@ -30,7 +27,7 @@ public class ProducerService {
     public ProducerService(Producer<String, Transaction> kafkaProducer) {
         this.properties = ConfigKafka.getKafkaProperties();
         this.kafkaProducer = kafkaProducer;
-        TransactionDao.createTable();
+        TransactionDao.createTable("transactions");
     }
 
     public RecordMetadata send(Transaction transaction) {
@@ -47,7 +44,7 @@ public class ProducerService {
                             logger.info("topic: " + metadata.topic());
                             logger.info("offset: " + metadata.offset());
                             logger.info("partition: " + metadata.partition());
-                            TransactionDao.saveTransaction(transaction);
+                            TransactionDao.saveTransaction(transaction, "transactions");
                         }));
         try {
             // дожидаемся ответа от брокера чтобы не потерять сообщение и залогировать ошибку
