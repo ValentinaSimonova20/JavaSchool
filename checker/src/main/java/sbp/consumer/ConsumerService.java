@@ -2,6 +2,7 @@ package sbp.consumer;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.WakeupException;
 import sbp.checkhash.CheckHashSumService;
 import sbp.util.HashSum;
 
@@ -24,22 +25,36 @@ public class ConsumerService {
 
     private final CheckHashSumService checkHashSumService;
 
-    public ConsumerService() {
-        this.checkHashSumService = new CheckHashSumService();
+    private final Consumer<String, HashSum> consumer;
+
+    private final java.util.function.Consumer<HashSum> resultAccumulatorFunction;
+
+    private final java.util.function.Consumer<Throwable> exceptionConsumer;
+
+    public ConsumerService(
+            CheckHashSumService checkHashSumService,
+            Consumer<String, HashSum> consumer,
+            java.util.function.Consumer<HashSum> resultAccumulatorFunction,
+            java.util.function.Consumer<Throwable> exceptionConsumer
+    ) {
+        this.checkHashSumService = checkHashSumService;
+        this.consumer = consumer;
+        this.resultAccumulatorFunction = resultAccumulatorFunction;
+        this.exceptionConsumer = exceptionConsumer;
     }
 
     public void read(Properties properties) {
         int counter = 0;
-        try(KafkaConsumer<String, HashSum> kafkaConsumer = new KafkaConsumer<>(properties)) {
-            kafkaConsumer.subscribe(List.of(properties.getProperty("check-topic")));
+        try(consumer) {
+            consumer.subscribe(List.of(properties.getProperty("check-topic")));
             while (true) {
-                ConsumerRecords<String, HashSum> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
+                ConsumerRecords<String, HashSum> consumerRecords = consumer.poll(Duration.ofMillis(100));
                 for(ConsumerRecord<String, HashSum> record: consumerRecords) {
                     logger.info("topic: " + record.topic());
                     logger.info("offset: " + record.offset());
                     logger.info("partition: " + record.partition());
                     logger.info("value: " + record.value());
-                    logger.info("groupId: " + kafkaConsumer.groupMetadata().groupId());
+                    logger.info("groupId: " + consumer.groupMetadata().groupId());
                     currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
                             new OffsetAndMetadata(record.offset() + 1, "no metadata"));
                     checkHashSumService.checkHashSum(
@@ -47,16 +62,24 @@ public class ConsumerService {
                             record.value().getTimestamp(),
                             Integer.parseInt(properties.getProperty("time-stamp-hashsum-check-minutes"))
                     );
+                    resultAccumulatorFunction.accept(record.value());
                     if (counter % 1000 == 0) {
                         logger.info("records commited");
-                        kafkaConsumer.commitSync(currentOffsets, null);
+                        consumer.commitSync(currentOffsets, null);
                     }
                     counter++;
                 }
             }
-
+        }catch (WakeupException e) {
+            System.out.println("Shutting down...");
+        }catch (RuntimeException ex) {
+            exceptionConsumer.accept(ex);
+        } finally {
+            consumer.close();
         }
     }
 
-
+    public void stop() {
+        consumer.wakeup();
+    }
 }

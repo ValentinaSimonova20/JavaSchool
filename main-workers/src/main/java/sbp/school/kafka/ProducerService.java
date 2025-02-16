@@ -31,21 +31,7 @@ public class ProducerService {
     }
 
     public RecordMetadata send(Transaction transaction) {
-        Future<RecordMetadata> result =
-                kafkaProducer
-                        .send(new ProducerRecord<>(properties.getProperty("topic"), transaction), ((metadata, exception) -> {
-                            if(exception != null) {
-                                // В случае сбоя продюсер должен фиксировать в логе ошибку,
-                                // смещение и партицию битого сообщения
-                                logger.severe("Произошла ошибка: " + exception.getMessage());
-                            } else {
-                                logger.info("Успешная отправка сообщения");
-                            }
-                            logger.info("topic: " + metadata.topic());
-                            logger.info("offset: " + metadata.offset());
-                            logger.info("partition: " + metadata.partition());
-                            TransactionDao.saveTransaction(transaction, "transactions");
-                        }));
+        Future<RecordMetadata> result = sendAndReturnFuture(transaction);
         try {
             // дожидаемся ответа от брокера чтобы не потерять сообщение и залогировать ошибку
             return result.get();
@@ -56,5 +42,22 @@ public class ProducerService {
             logger.severe("ExecutionException {}" + e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public Future<RecordMetadata> sendAndReturnFuture(Transaction transaction) {
+        return kafkaProducer
+                .send(new ProducerRecord<>(properties.getProperty("topic"), transaction), ((metadata, exception) -> {
+                    if (exception != null) {
+                        // В случае сбоя продюсер должен фиксировать в логе ошибку,
+                        // смещение и партицию битого сообщения
+                        logger.severe("Произошла ошибка: " + exception.getMessage());
+                    } else {
+                        logger.info("Успешная отправка сообщения");
+                    }
+                    logger.info("topic: " + metadata.topic());
+                    logger.info("offset: " + metadata.offset());
+                    logger.info("partition: " + metadata.partition());
+                    TransactionDao.saveTransaction(transaction, "transactions");
+                }));
     }
 }
