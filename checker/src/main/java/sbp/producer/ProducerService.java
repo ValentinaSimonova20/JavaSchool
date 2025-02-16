@@ -16,9 +16,9 @@ public class ProducerService {
 
     private static final Logger logger = Logger.getLogger(ProducerService.class.getName());
 
-    public ProducerService() {
+    public ProducerService(Producer<String, HashSum> kafkaProducer) {
         this.properties = ConfigKafka.getProducerConfig();
-        this.kafkaProducer = new KafkaProducer<>(properties);
+        this.kafkaProducer = kafkaProducer;
 
     }
 
@@ -29,9 +29,7 @@ public class ProducerService {
      * @param hashSum значение которое нужно отправить
      */
     public void send(HashSum hashSum) {
-        Future<RecordMetadata> result =
-                kafkaProducer
-                        .send(new ProducerRecord<>(properties.getProperty("check-topic"), hashSum), (this::callback));
+        Future<RecordMetadata> result = sendHashSumAndReturnHashSum(hashSum);
         try {
             result.get();
         } catch (InterruptedException e) {
@@ -41,6 +39,11 @@ public class ProducerService {
             logger.severe("ExecutionException {}" + e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public Future<RecordMetadata> sendHashSumAndReturnHashSum(HashSum hashSum) {
+        return kafkaProducer
+                .send(new ProducerRecord<>(properties.getProperty("check-topic"), hashSum), (this::callback));
     }
 
     private void callback(RecordMetadata metadata, Exception exception) {

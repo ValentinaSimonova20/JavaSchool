@@ -1,18 +1,31 @@
 package sbp.school.kafka.consumer;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import sbp.school.kafka.util.Transaction;
+
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class ThreadListener extends Thread{
 
-    private Properties properties;
-    private ConsumerService consumerService;
+    private final Properties properties;
+    private final ConsumerService consumerService;
 
-    public ThreadListener(Properties properties) {
+    private static final Logger logger = Logger.getLogger(ThreadListener.class.getName());
+
+
+    public ThreadListener(
+            Properties properties,
+            KafkaConsumer<String, Transaction> consumer,
+            java.util.function.Consumer<Transaction> resultAccumulatorFunction
+    ) {
         this.properties = properties;
-        this.consumerService = new ConsumerService();
+        this.consumerService = new ConsumerService(
+                consumer, resultAccumulatorFunction, ex -> logger.severe(ex.getMessage())
+        );
     }
 
     private void listen() {
-        consumerService.read(properties);
+        consumerService.read(properties.getProperty("topic"));
     }
 
     @Override
