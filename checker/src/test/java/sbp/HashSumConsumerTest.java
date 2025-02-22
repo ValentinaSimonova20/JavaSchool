@@ -8,7 +8,6 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import sbp.checkhash.CheckHashSumService;
@@ -54,7 +53,6 @@ public class HashSumConsumerTest {
     }
 
     @Test
-    @Disabled
     void success() {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         // слушаем топик обратного потока

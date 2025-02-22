@@ -5,7 +5,6 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sbp.school.kafka.consumer.ConsumerService;
 import sbp.school.kafka.consumer.ThreadListener;
@@ -41,7 +40,6 @@ public class ConsumerServiceTest {
     }
 
     @Test
-    @Disabled
     void successTest() {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         while (true) {

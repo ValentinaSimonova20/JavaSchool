@@ -53,7 +53,6 @@ public class ProducerServiceTest {
     }
 
     @Test
-    @Disabled
     void sendMessage() {
         int sizeBefore = TransactionDao.getAllTransactions("transactions").size();
         new ProducerService().send(
