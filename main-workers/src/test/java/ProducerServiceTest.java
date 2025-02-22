@@ -1,11 +1,9 @@
 import org.apache.kafka.clients.producer.MockProducer;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import sbp.school.kafka.ProducerService;
@@ -15,6 +13,8 @@ import sbp.school.kafka.util.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,6 +44,11 @@ public class ProducerServiceTest {
     void success(Transaction transaction) {
         assertEquals(transaction.getType().getPartitionNum(), producerService.send(transaction).partition());
         assertEquals(1, producer.history().size());
+        Transaction actualTransactionInProducer = producer.history().get(0).value();
+        assertEquals(transaction.getType(), actualTransactionInProducer.getType());
+        assertEquals(transaction.getAccount(), actualTransactionInProducer.getAccount());
+        assertEquals(transaction.getDate(), actualTransactionInProducer.getDate());
+        assertEquals(transaction.getSum(), actualTransactionInProducer.getSum());
         producer.clear();
     }
 
@@ -54,6 +59,26 @@ public class ProducerServiceTest {
                 new Transaction(TransactionType.PRODUCTS, 1234, "счет1", LocalDateTime.now())
         );
         assertEquals(sizeBefore + 1, TransactionDao.getAllTransactions("transactions").size());
+    }
+
+    @Test
+    void exceptionTest(){
+        producer = new MockProducer<>(
+                false,
+                new TransactionPartitioner(),
+                new StringSerializer(),
+                new JsonTransactionSerializer()
+        );
+
+        producerService = new ProducerService(producer);
+        Future<RecordMetadata> metadata =
+                producerService.sendAndReturnFuture(
+                        new Transaction(TransactionType.SERVICE, 1234, "счет1", LocalDateTime.now())
+                );
+
+        producer.errorNext(new RuntimeException("error"));
+
+        assertThrows(ExecutionException.class, metadata::get);
     }
 
     private List<Transaction> testSource() {

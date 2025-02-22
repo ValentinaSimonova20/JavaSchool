@@ -1,5 +1,6 @@
 package sbp.checkhash;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
 import sbp.producer.ProducerService;
 import sbp.util.HashSum;
 import sbp.util.TransactionDao;
@@ -19,7 +20,7 @@ public class CalculateHashSumRunnableTask implements Runnable{
 
     public CalculateHashSumRunnableTask(Properties properties) {
         this.properties = properties;
-        this.producerService = new ProducerService();
+        this.producerService = new ProducerService(new KafkaProducer<>(properties));
 
     }
 
